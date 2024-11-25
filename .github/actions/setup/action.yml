@@ -1,3 +1,5 @@
+name: "install uv"
+description: "instals uv using the community action"
 runs:
   using: composite
   steps:
