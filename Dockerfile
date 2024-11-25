@@ -1,5 +1,5 @@
 # Build stage
-FROM ghcr.io/astral-sh/uv:python3.13-alpine AS builder
+FROM ghcr.io/astral-sh/uv:python3.13-alpine AS build
 
 # Change working directory
 WORKDIR /build
@@ -15,12 +15,23 @@ COPY . .
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-editable
 
+# Test stage
+FROM build AS test
+
+# Create non-root test user
+RUN adduser -D testuser
+USER testuser
+
+# Run tests with coverage
+RUN python -m pytest tests/ --cov=src --cov-report=term-missing
+
+# Production Stage
 FROM python:3.13-alpine
 
 # Copy only the virtual environment, not the source code
-COPY --from=builder build/.venv app/.venv
+COPY --from=build build/.venv app/.venv
 
-# Create non-root user
+# Create non-root app user
 RUN adduser -D appuser
 USER appuser
 
