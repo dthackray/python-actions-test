@@ -1,6 +1,8 @@
 # Build stage
 FROM ghcr.io/astral-sh/uv:python3.13-alpine AS build
 
+RUN apk add --no-cache gcc python3-dev musl-dev linux-headers
+
 # Change working directory
 WORKDIR /build
 
@@ -20,15 +22,29 @@ FROM build AS test
 
 # Create non-root test user
 RUN adduser -D testuser
+RUN chown -R testuser:testuser /build
+RUN mkdir -p /build/reports
+RUN chown testuser:testuser /build/reports
 USER testuser
 
+# Use the virtual environment's Python for running tests
+ENV PATH="/build/.venv/bin:$PATH" \
+    PYTHONPATH="/build/src:$PYTHONPATH"
+
 # Run tests with coverage
-RUN python -m pytest tests/ --cov=src --cov-report=term-missing
+RUN python -m pytest tests/ \
+    --html=/build/reports/pytest.html \
+    --self-contained-html \
+    --cov=src \
+    --cov-report=term \
+    --cov-report=html:/build/reports/coverage
+RUN cp /build/reports/coverage/index.html /build/reports/coverage.html
 
 # Production Stage
 FROM python:3.13-alpine
 
-# Copy only the virtual environment, not the source code
+# Copy from prior stages
+COPY --from=test /build/reports /app/reports
 COPY --from=build build/.venv app/.venv
 
 # Create non-root app user
