@@ -17,7 +17,7 @@ jobs:
       - name: Set up Python
         run: uv python install
       - name: Install the project
-        run: uv sync --all-extras --dev
+        run: uv sync --all-extras
   run_tests:
     needs: setup
     runs-on: ubuntu-latest
