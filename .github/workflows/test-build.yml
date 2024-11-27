@@ -24,7 +24,7 @@ jobs:
         run: uv sync --all-extras --dev
       - name: Run tests
         run: |
-          PYTHONPATH=$PYTHONPATH:$(pwd) uv run pytest tests/ \
+          PYTHONPATH=$PYTHONPATH:$(pwd)/src uv run pytest tests/ \
             --html=pipeline-pytest-${{ steps.vars.outputs.sha_short }}.html \
             --self-contained-html \
             --cov=src \
