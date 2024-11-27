@@ -1,9 +1,9 @@
 name: Test and Build
-run-name: ${{ github.action}} - ${{ github.event.head_commit.message }}
+run-name: ${{ github.sha }} - ${{ github.event.head_commit.message }}
 on:
   # Run after code quality checks workflow completes successfully
   workflow_run:
-    workflows: ["Code Quality"]
+    workflows: ["Python Code Quality"]
     types:
       - completed
 jobs:
