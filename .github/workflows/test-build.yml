@@ -55,7 +55,7 @@ jobs:
             ${{ secrets.DOCKERHUB_USERNAME }}/python-actions-test:latest
       - name: Extract test reports from image
         run: |
-          CONTAINER_ID=$(docker create ghcr.io/${{ github.repository }}:${{ needs.test.outputs.sha_short }})
+          CONTAINER_ID=$(docker create {{ secrets.DOCKERHUB_USERNAME }}/python-actions-test:${{ needs.test.outputs.sha_short }})
           docker cp $CONTAINER_ID:/app/reports ./docker-reports
           docker rm $CONTAINER_ID
       - name: Upload Docker Test Reports
