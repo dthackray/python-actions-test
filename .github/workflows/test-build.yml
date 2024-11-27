@@ -52,8 +52,8 @@ jobs:
         with:
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}:${{ needs.test.outputs.sha_short }}
-            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.actor }}/{{ github.event.repository.name }}:${{ needs.test.outputs.sha_short }}
+            ghcr.io/${{ github.actor }}/{{ github.event.repository.name }}:latest
       - name: Extract test reports from image
         run: |
           CONTAINER_ID=$(docker create ghcr.io/${{ github.repository }}:${{ needs.test.outputs.sha_short }})
