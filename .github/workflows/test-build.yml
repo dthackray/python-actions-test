@@ -24,7 +24,7 @@ jobs:
         run: uv sync --all-extras --dev
       - name: Run tests
         run: |
-          pytest tests/ \
+          uv run pytest tests/ \
             --html=pipeline-pytest-${{ steps.vars.outputs.sha_short }}.html \
             --self-contained-html \
             --cov=src \

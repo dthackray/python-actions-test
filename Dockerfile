@@ -32,7 +32,7 @@ ENV PATH="/build/.venv/bin:$PATH" \
     PYTHONPATH="/build/src:$PYTHONPATH"
 
 # Run tests with coverage
-RUN python -m pytest tests/ \
+RUN uv run pytest tests/ \
     --html=/build/reports/pytest.html \
     --self-contained-html \
     --cov=src \
