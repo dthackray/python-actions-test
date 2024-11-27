@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run Tests
         run: |
-          PYTHONPATH=$PYTHONPATH:$(pwd)/src pytest tests/ \
+          PYTHONPATH=$PYTHONPATH:$(pwd)/src uv run pytest tests/ \
             --html=pipeline-pytest-${{ github.sha }}.html \
             --self-contained-html \
             --cov=src \
