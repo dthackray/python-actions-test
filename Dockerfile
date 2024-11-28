@@ -37,7 +37,8 @@ RUN uv run pytest tests/ \
     --self-contained-html \
     --cov=src \
     --cov-report=term \
-    --cov-report=html:/build/reports/coverage
+    --cov-report=html:/build/reports/coverage \
+    --cov-report=xml:/build/reports/coverage.xml
 RUN cp /build/reports/coverage/index.html /build/reports/coverage.html
 
 # Production Stage
