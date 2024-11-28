@@ -56,7 +56,7 @@ jobs:
       - name: Upload Pipeline Test Reports
         uses: actions/upload-artifact@v4
         with:
-          name: pipeline-test-reports
+          name: ${{ steps.vars.outputs.sha_short }}-pipeline-test-reports
           path: |
             ${{ steps.vars.outputs.sha_short }}-pipeline-pytest.html
             ${{ steps.vars.outputs.sha_short }}-pipeline-coverage/
@@ -87,7 +87,7 @@ jobs:
       - name: Upload Docker Test Reports
         uses: actions/upload-artifact@v4
         with:
-          name: docker-test-reports
+          name: ${{ needs.test.outputs.sha_short }}-docker-test-reports
           path: |
             ${{ needs.test.outputs.sha_short }}-docker-pytest.html
             ${{ needs.test.outputs.sha_short }}-docker-coverage/
