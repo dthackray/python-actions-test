@@ -48,10 +48,11 @@ jobs:
       - name: Run tests
         run: |
           PYTHONPATH=$PYTHONPATH:$(pwd)/src uv run pytest tests/ \
-            --html=pipeline-pytest-${{ steps.vars.outputs.sha_short }}.html \
-            --self-contained-html \
-            --cov=src \
-            --cov-report=html:pipeline-coverage-${{ steps.vars.outputs.sha_short }}
+          --html=${{ steps.vars.outputs.sha_short }}-pipeline-pytest.html \
+          --self-contained-html \
+          --cov=src \
+          --cov-report=term \
+          --cov-report=html:${{ steps.vars.outputs.sha_short }}-pipeline-coverage
       - name: Upload Pipeline Test Reports
         uses: actions/upload-artifact@v4
         with:
