@@ -56,7 +56,8 @@ RUN adduser -D appuser
 USER appuser
 
 # Set environment
-ENV PATH="/app/.venv/bin:$PATH"
+ENV PATH="/app/.venv/bin:$PATH" \
+    PYTHONPATH="/app:$PYTHONPATH"
 
 WORKDIR /app
 # Copy application code
