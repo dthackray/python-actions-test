@@ -54,6 +54,12 @@ jobs:
           --cov-report=term \
           --cov-report=xml:${{ steps.vars.outputs.sha_short }}-pipeline-coverage.xml \
           --cov-report=html:${{ steps.vars.outputs.sha_short }}-pipeline-coverage
+      - name: Upload Pipeline Coverage to Codecov # Add this
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ${{ steps.vars.outputs.sha_short }}-pipeline-coverage.xml
+          flags: pipeline
       - name: Upload Pipeline Test Reports
         uses: actions/upload-artifact@v4
         with:
@@ -86,6 +92,12 @@ jobs:
           mv ./temp-reports/pytest.html ./${{ needs.test.outputs.sha_short }}-docker-pytest.html
           mv ./temp-reports/coverage ./${{ needs.test.outputs.sha_short }}-docker-coverage
           mv ./temp-reports/coverage.xml ./${{ needs.test.outputs.sha_short }}-docker-coverage.xml
+      - name: Upload Docker Coverage to Codecov # Add this
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ${{ needs.test.outputs.sha_short }}-docker-coverage.xml
+          flags: docker
       - name: Upload Docker Test Reports
         uses: actions/upload-artifact@v4
         with:
