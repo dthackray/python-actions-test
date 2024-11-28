@@ -60,7 +60,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ${{ steps.vars.outputs.sha_short }}-pipeline-coverage.xml
           flags: pipeline
-      - name: Upload Pipeline Test Reports
+      - name: Upload Pipeline Test Reports to Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.vars.outputs.sha_short }}-pipeline-test-reports
@@ -98,7 +98,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ${{ needs.test.outputs.sha_short }}-docker-coverage.xml
           flags: docker
-      - name: Upload Docker Test Reports
+      - name: Upload Docker Test Reports to Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ needs.test.outputs.sha_short }}-docker-test-reports
