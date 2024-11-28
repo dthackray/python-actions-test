@@ -41,6 +41,9 @@ RUN uv run pytest tests/ \
     --cov-report=xml:/build/reports/coverage.xml
 RUN cp /build/reports/coverage/index.html /build/reports/coverage.html
 
+# Remove dev dependencies
+RUN uv sync --no-dev
+
 # Production Stage
 FROM python:3.13-alpine
 
