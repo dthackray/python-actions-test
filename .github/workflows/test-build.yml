@@ -1,71 +1,67 @@
-name: Test and Build
-run-name: ${{ github.sha }} - ${{ github.event.head_commit.message }}
-on:
-  # Run after code quality checks workflow completes successfully
-  workflow_run:
-    workflows: ["Python Code Quality"]
-    types:
-      - completed
-jobs:
-  setup:
-    runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install uv
-        uses: astral-sh/setup-uv@v3
-      - name: Set up Python
-        run: uv python install
-      - name: Install the project
-        run: uv sync --all-extras
-      - name: Run Tests
-        run: |
-          PYTHONPATH=$PYTHONPATH:$(pwd)/src uv run pytest tests/ \
-            --html=pipeline-pytest-${{ github.sha }}.html \
-            --self-contained-html \
-            --cov=src \
-            --cov-report=html:pipeline-coverage-${{ github.sha }}
-  upload_test_reports:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/upload-artifact@v4
-        with:
-          name: pipeline-test-reports-${{ github.sha }}
-          path: |
-            pipeline-pytest-${{ github.sha }}.html
-            pipeline-coverage-${{ github.sha }}
-  docker_login:
-    needs: upload_test_reports
-    runs-on: ubuntu-latest
-    steps:
-      - uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-  docker_build:
-    needs: docker_login
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build and Push
-        uses: docker/build-push-action@v6
-        with:
-          push: true
-          tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/python-actions-test:${{ github.sha }}
-            ${{ secrets.DOCKERHUB_USERNAME }}/python-actions-test:latest
-  extract_reports:
-    needs: docker_build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Extract Test Reports
-        run: |
-          CONTAINER_ID=$(docker create ${{ secrets.DOCKERHUB_USERNAME }}/python-actions-test:${{ github.sha }})
-          docker cp $CONTAINER_ID:/app/reports ./docker-reports
-          docker rm $CONTAINER_ID
-      - name: Upload Docker Reports
-        uses: actions/upload-artifact@v4
-        with:
-          name: docker-test-reports-${{ github.sha }}
-          path: docker-reports
+# name: Test and Build
+# run-name: ${{ github.sha }} - ${{ github.event.head_commit.message }}
+# on:
+#   # Run after code quality checks workflow completes successfully
+#   workflow_run:
+#     workflows: ["Python Code Quality"]
+#     types:
+#       - completed
+# jobs:
+#   test:
+#     runs-on: ubuntu-latest
+#     if: ${{ github.event.workflow_run.conclusion == 'success' }}
+#     outputs:
+#       sha_short: ${{ steps.vars.outputs.sha_short }}
+#     steps:
+#       - uses: actions/checkout@v4
+#       - name: Set commit SHA variables
+#         id: vars
+#         run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+#       - name: Install uv
+#         uses: astral-sh/setup-uv@v3
+#       - name: Set up Python
+#         run: uv python install
+#       - name: Install the project
+#         run: uv sync --all-extras --dev
+#       - name: Run tests
+#         run: |
+#           PYTHONPATH=$PYTHONPATH:$(pwd)/src uv run pytest tests/ \
+#             --html=pipeline-pytest-${{ steps.vars.outputs.sha_short }}.html \
+#             --self-contained-html \
+#             --cov=src \
+#             --cov-report=html:pipeline-coverage-${{ steps.vars.outputs.sha_short }}
+#       - name: Upload Pipeline Test Reports
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: pipeline-test-reports-${{ steps.vars.outputs.sha_short }}
+#           path: |
+#             pipeline-pytest-${{ steps.vars.outputs.sha_short }}.html
+#             pipeline-coverage-${{ steps.vars.outputs.sha_short }}
+#   build:
+#     needs: test
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v4
+#       - name: Login to Docker Hub
+#         uses: docker/login-action@v3
+#         with:
+#           username: ${{ secrets.DOCKERHUB_USERNAME }}
+#           password: ${{ secrets.DOCKERHUB_TOKEN }}
+#       - name: Build and push
+#         uses: docker/build-push-action@v6
+#         with:
+#           push: true
+#           tags: |
+#             ${{ secrets.DOCKERHUB_USERNAME }}/python-actions-test:${{ needs.test.outputs.sha_short }}
+#             ${{ secrets.DOCKERHUB_USERNAME }}/python-actions-test:latest
+#       - name: Extract test reports from image
+#         run: |
+#           CONTAINER_ID=$(docker create {{ secrets.DOCKERHUB_USERNAME }}/python-actions-test:${{ needs.test.outputs.sha_short }})
+#           CONTAINER_ID=$(docker create ${{ secrets.DOCKERHUB_USERNAME }}/python-actions-test:${{ needs.test.outputs.sha_short }})
+#           docker cp $CONTAINER_ID:/app/reports ./docker-reports
+#           docker rm $CONTAINER_ID
+#       - name: Upload Docker Test Reports
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: docker-test-reports-${{ needs.test.outputs.sha_short }}
+#           path: docker-reports
