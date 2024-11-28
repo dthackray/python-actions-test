@@ -10,15 +10,18 @@ WORKDIR /build
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    uv sync --frozen --no-install-project --no-editable
+    uv sync --no-dev --frozen --no-install-project --no-editable
 
 # Copy the project and sync
 COPY . .
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-editable
+    uv sync --no-dev --frozen --no-editable
 
 # Test stage
 FROM build AS test
+
+# Install dev dependencies
+RUN uv sync --only-dev
 
 # Create non-root test user
 RUN adduser -D testuser
@@ -40,9 +43,6 @@ RUN uv run pytest tests/ \
     --cov-report=html:/build/reports/coverage \
     --cov-report=xml:/build/reports/coverage.xml
 RUN cp /build/reports/coverage/index.html /build/reports/coverage.html
-
-# Remove dev dependencies
-RUN uv sync --no-dev
 
 # Production Stage
 FROM python:3.13-alpine
